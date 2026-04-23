@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'theme/tema_app.dart';
 
 void main() {
   runApp(const HidroBalanceApp());
@@ -12,13 +13,7 @@ class HidroBalanceApp extends StatelessWidget {
     return MaterialApp(
       title: 'HidroBalance',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFC41230),
-        ),
-        useMaterial3: true,
-      ),
-      home: const Scaffold(body: Center(child: Text('HidroBalance'))),
+      theme: AppTheme.theme,
     );
   }
 }
