@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'tela_cadastro.dart';
 import '../../theme/tema_app.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -156,7 +157,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(color: Colors.grey[600]),
                       ),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const RegisterScreen()),),
                         child: const Text(
                           'Cadastre-se',
                           style: TextStyle(
