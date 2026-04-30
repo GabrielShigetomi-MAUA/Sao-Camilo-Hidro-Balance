@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/tema_app.dart';
+import '../../services/autenticacao.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -13,16 +14,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
   final _confirmarSenhaController = TextEditingController();
+  final _authService = AuthService();
   bool _senhaVisivel = false;
   bool _confirmarSenhaVisivel = false;
   bool _carregando = false;
   String? _perfilSelecionado;
+  String? _erro;
 
   final List<Map<String, dynamic>> _perfis = [
     {'valor': 'atleta', 'label': 'Atleta', 'icone': Icons.directions_run},
-    {'valor': 'nutricionista', 'label': 'Nutricionista', 'icone': Icons.local_dining},
+    {
+      'valor': 'nutricionista',
+      'label': 'Nutricionista',
+      'icone': Icons.local_dining,
+    },
     {'valor': 'treinador', 'label': 'Treinador', 'icone': Icons.fitness_center},
-    {'valor': 'medico', 'label': 'Médico', 'icone': Icons.medical_services_outlined},
+    {
+      'valor': 'medico',
+      'label': 'Médico',
+      'icone': Icons.medical_services_outlined,
+    },
   ];
 
   @override
@@ -34,9 +45,42 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  void _cadastrar() {
-    // cadastro (será adicionado posteriomente)
-    setState(() => _carregando = true);
+  Future<void> _cadastrar() async {
+    if (_perfilSelecionado == null) {
+      setState(() => _erro = 'Selecione um perfil para continuar.');
+      return;
+    }
+
+    if (_senhaController.text != _confirmarSenhaController.text) {
+      setState(() => _erro = 'As senhas não coincidem.');
+      return;
+    }
+
+    setState(() {
+      _carregando = true;
+      _erro = null;
+    });
+
+    final erro = await _authService.cadastrar(
+      nome: _nomeController.text,
+      email: _emailController.text,
+      senha: _senhaController.text,
+      perfil: _perfilSelecionado!,
+    );
+
+    if (mounted) {
+      setState(() {
+        _carregando = false;
+        _erro = erro;
+      });
+
+      if (erro == null) {
+        Navigator.pop(context); // volta pro login após cadastro
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Conta criada com sucesso!')),
+        );
+      }
+    }
   }
 
   @override
@@ -60,7 +104,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   // título
                   const Text(
                     'Criar conta',
@@ -158,7 +201,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               : Icons.visibility_outlined,
                         ),
                         onPressed: () => setState(
-                            () => _confirmarSenhaVisivel = !_confirmarSenhaVisivel),
+                          () =>
+                              _confirmarSenhaVisivel = !_confirmarSenhaVisivel,
+                        ),
                       ),
                     ),
                   ),
@@ -188,7 +233,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       final selecionado = _perfilSelecionado == perfil['valor'];
                       return GestureDetector(
                         onTap: () => setState(
-                            () => _perfilSelecionado = perfil['valor']),
+                          () => _perfilSelecionado = perfil['valor'],
+                        ),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           decoration: BoxDecoration(
@@ -232,6 +278,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
 
                   const SizedBox(height: 32),
+
+                  if (_erro != null) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.red.shade200),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            color: Colors.red.shade700,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _erro!,
+                              style: TextStyle(
+                                color: Colors.red.shade700,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
 
                   // botão cadastrar
                   ElevatedButton(

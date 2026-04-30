@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'tela_cadastro.dart';
 import '../../theme/tema_app.dart';
+import '../../services/autenticacao.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,8 +13,10 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
+  final _authService = AuthService();
   bool _senhaVisivel = false;
   bool _carregando = false;
+  String? _erro;
 
   @override
   void dispose() {
@@ -22,9 +25,30 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _entrar() {
-    // login (será adicionado posteriomente)
-    setState(() => _carregando = true);
+  Future<void> _entrar() async {
+    setState(() {
+      _carregando = true;
+      _erro = null;
+    });
+
+    final erro = await _authService.login(
+      email: _emailController.text,
+      senha: _senhaController.text,
+    );
+
+    if (mounted) {
+      setState(() {
+        _carregando = false;
+        _erro = erro;
+      });
+
+      if (erro == null) {
+        // navegar pra tela home (será adicionado posteriormente)
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login realizado com sucesso!')),
+        );
+      }
+    }
   }
 
   @override
@@ -122,6 +146,35 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
 
+                  // exibe erro se houver
+                  if (_erro != null) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.red.shade200),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.error_outline,
+                              color: Colors.red.shade700, size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _erro!,
+                              style: TextStyle(
+                                color: Colors.red.shade700,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+
                   const SizedBox(height: 12),
 
                   // esqueci a senha
@@ -159,7 +212,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       TextButton(
                         onPressed: () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const RegisterScreen()),),
+                          MaterialPageRoute(
+                              builder: (_) => const RegisterScreen()),
+                        ),
                         child: const Text(
                           'Cadastre-se',
                           style: TextStyle(
