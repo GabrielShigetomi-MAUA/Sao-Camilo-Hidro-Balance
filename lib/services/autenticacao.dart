@@ -12,10 +12,7 @@ class AuthService {
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   // login com email e senha
-  Future<String?> login({
-    required String email,
-    required String senha,
-  }) async {
+  Future<String?> login({required String email, required String senha}) async {
     try {
       await _auth.signInWithEmailAndPassword(
         email: email.trim(),
@@ -23,7 +20,12 @@ class AuthService {
       );
       return null; // obs: null=sucesso
     } on FirebaseAuthException catch (e) {
+      print("AUTH ERROR CODE: ${e.code}");
+      print("AUTH ERROR MESSAGE: ${e.message}");
       return _traduzirErro(e.code);
+    } catch (e) {
+      print("ERRO DESCONHECIDO NO LOGIN: $e");
+      return "Erro inesperado.";
     }
   }
 
@@ -40,11 +42,8 @@ class AuthService {
         password: senha,
       );
 
-      // salva dados adicionais no firestore
-      await _firestore
-          .collection('usuarios')
-          .doc(resultado.user!.uid)
-          .set({
+      // salva no firestore
+      await _firestore.collection('usuarios').doc(resultado.user!.uid).set({
         'nome': nome.trim(),
         'email': email.trim(),
         'perfil': perfil,
@@ -53,7 +52,14 @@ class AuthService {
 
       return null;
     } on FirebaseAuthException catch (e) {
+      print("AUTH ERROR: ${e.code}");
       return _traduzirErro(e.code);
+    } on FirebaseException catch (e) {
+      print("FIRESTORE ERROR: ${e.code}");
+      return "Erro ao salvar dados do usuário.";
+    } catch (e) {
+      print("ERRO DESCONHECIDO: $e");
+      return "Erro inesperado.";
     }
   }
 
