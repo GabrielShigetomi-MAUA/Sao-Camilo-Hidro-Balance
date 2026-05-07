@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'tela_cadastro.dart';
+import 'tela_esqueci_senha.dart';
 import '../../theme/tema_app.dart';
 import '../../services/autenticacao.dart';
 
@@ -158,8 +159,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.error_outline,
-                              color: Colors.red.shade700, size: 18),
+                          Icon(
+                            Icons.error_outline,
+                            color: Colors.red.shade700,
+                            size: 18,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -181,7 +185,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ForgotPasswordScreen(),
+                        ),
+                      ),
                       child: const Text(
                         'Esqueci minha senha',
                         style: TextStyle(color: AppTheme.primaryColor),
@@ -213,7 +222,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const RegisterScreen()),
+                            builder: (_) => const RegisterScreen(),
+                          ),
                         ),
                         child: const Text(
                           'Cadastre-se',
