@@ -42,11 +42,21 @@ class AuthService {
         password: senha,
       );
 
-      // salva no firestore
-      await _firestore.collection('usuarios').doc(resultado.user!.uid).set({
+      final uid = resultado.user!.uid;
+      final codigo = 'ATL-${uid.substring(0, 6).toUpperCase()}';
+
+      await _firestore.collection('usuarios').doc(uid).set({
         'nome': nome.trim(),
         'email': email.trim(),
         'perfil': perfil,
+        'codigoAtleta': codigo,
+        'modalidadePadrao': null,
+        'consentimentoLGPD': true,
+        'resumo': {
+          'totalSessoes': 0,
+          'taxaSudorMediaL_h': 0.0,
+          'mediaVariacaoMassaPct': 0.0,
+        },
         'criadoEm': FieldValue.serverTimestamp(),
       });
 
