@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'tela_cadastro.dart';
 import 'tela_esqueci_senha.dart';
+import '../home/tela_home.dart';
 import '../../theme/tema_app.dart';
 import '../../services/autenticacao.dart';
 
@@ -44,9 +45,10 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       if (erro == null) {
-        // navegar pra tela home (será adicionado posteriormente)
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login realizado com sucesso!')),
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const TelaHome()),
         );
       }
     }
