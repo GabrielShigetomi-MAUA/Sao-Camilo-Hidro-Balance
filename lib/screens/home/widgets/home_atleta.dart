@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../models/usuario.dart';
 import '../../../theme/tema_app.dart';
+import '../../sessao/tela_pre_sessao.dart';
 
 class HomeAtleta extends StatelessWidget {
   final Usuario usuario;
@@ -20,7 +21,15 @@ class HomeAtleta extends StatelessWidget {
           // botão nova sessão
           ElevatedButton.icon(
             onPressed: () {
-              // navegar para pré-sessão (Fase 2)
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TelaPreSessao(
+                    atletaUid: usuario.uid,
+                    codigoAtleta: usuario.codigoAtleta,
+                  ),
+                ),
+              );
             },
             icon: const Icon(Icons.add),
             label: const Text('Iniciar nova sessão'),
@@ -34,9 +43,9 @@ class HomeAtleta extends StatelessWidget {
           // últimas sessões (placeholder por enquanto)
           Text(
             'Últimas sessões',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
           _PlaceholderSessoes(),
@@ -53,7 +62,11 @@ class _CardSaudacao extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hora = DateTime.now().hour;
-    final saudacao = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
+    final saudacao = hora < 12
+        ? 'Bom dia'
+        : hora < 18
+        ? 'Boa tarde'
+        : 'Boa noite';
 
     return Container(
       width: double.infinity,
@@ -80,10 +93,7 @@ class _CardSaudacao extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             'Código: ${usuario.codigoAtleta}',
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 13,
-            ),
+            style: const TextStyle(color: Colors.white70, fontSize: 13),
           ),
         ],
       ),
