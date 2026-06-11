@@ -257,7 +257,7 @@ class Sessao {
         'vestimenta': vestimenta.name,
         'condicoesAmbientais': condicoesAmbientais.toMap(),
         'estadoBasal': estadoBasal.toMap(),
-        'registrosIngesta': registrosIngestao.map((r) => r.toMap()).toList(),
+        'registrosIngestao': registrosIngestao.map((r) => r.toMap()).toList(),
         'dadosPosSessao': dadosPosSessao?.toMap(),
         'resultado': resultado?.toMap(),
       };
@@ -279,7 +279,7 @@ class Sessao {
         condicoesAmbientais:
             CondicoesAmbientais.fromMap(map['condicoesAmbientais']),
         estadoBasal: EstadoBasalAtleta.fromMap(map['estadoBasal']),
-        registrosIngestao: (map['registrosIngesta'] as List<dynamic>)
+        registrosIngestao: (map['registrosIngestao'] as List<dynamic>)
             .map((e) => RegistroIngestao.fromMap(e as Map<String, dynamic>))
             .toList(),
         dadosPosSessao: map['dadosPosSessao'] != null

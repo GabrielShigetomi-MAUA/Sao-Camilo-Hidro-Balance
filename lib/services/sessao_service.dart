@@ -10,7 +10,7 @@ class SessaoService {
 
   // referências
   CollectionReference<Map<String, dynamic>> _sessoesRef(String atletaUid) =>
-      _db.collection('users').doc(atletaUid).collection('sessoes');
+      _db.collection('usuarios').doc(atletaUid).collection('sessoes');
 
   // pré-sessão:
 
@@ -26,7 +26,7 @@ class SessaoService {
   // atualização durante a sessão:
 
   // adiciona um registro de ingestão de fluido à sessão em andamento
-  Future<void> adicionarIngesta(
+  Future<void> adicionarIngestao(
     String atletaUid,
     String sessaoId,
     RegistroIngestao ingestao,
