@@ -5,6 +5,7 @@ import '../../../models/usuario.dart';
 import '../../../services/sessao_service.dart';
 import '../../../theme/tema_app.dart';
 import '../../sessao/tela_pre_sessao.dart';
+import '../../sessao/tela_resultado_sessao.dart';
 
 class HomeAtleta extends StatefulWidget {
   final Usuario usuario;
@@ -291,67 +292,83 @@ class _CardSessao extends StatelessWidget {
     final resultado = sessao.resultado;
     final data = DateFormat('dd/MM/yyyy · HH:mm').format(sessao.dataHoraInicio);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(10),
+    return GestureDetector(
+      onTap: resultado == null
+          ? null
+          : () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => TelaResultadoSessao(
+                  atletaUid: sessao.atletaUid,
+                  sessaoId: sessao.id!,
+                  resultado: resultado,
+                ),
+              ),
             ),
-            child: const Icon(
-              Icons.water_drop_outlined,
-              color: AppTheme.primaryColor,
-              size: 20,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryColor.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.water_drop_outlined,
+                color: AppTheme.primaryColor,
+                size: 20,
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _labelModalidade(sessao.modalidade),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _labelModalidade(sessao.modalidade),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  data,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                ),
-              ],
-            ),
-          ),
-          if (resultado != null)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '${resultado.taxaSudoreseLh.toStringAsFixed(2)} L/h',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                    color: AppTheme.primaryColor,
+                  const SizedBox(height: 2),
+                  Text(
+                    data,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                   ),
-                ),
-                Text(
-                  '${resultado.variacaoMassaPercent.toStringAsFixed(1)}%',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                ),
-              ],
+                ],
+              ),
             ),
-        ],
+            if (resultado != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '${resultado.taxaSudoreseLh.toStringAsFixed(2)} L/h',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: AppTheme.primaryColor,
+                    ),
+                  ),
+                  Text(
+                    '${resultado.variacaoMassaPercent.toStringAsFixed(1)}%',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  ),
+                ],
+              )
+            else
+              const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
+          ],
+        ),
       ),
     );
   }
