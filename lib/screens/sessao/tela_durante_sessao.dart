@@ -426,7 +426,7 @@ class _TelaDuranteSessaoState extends State<TelaDuranteSessao> {
   String _descricaoAtalho(int ml) => switch (ml) {
     150 => 'Copo P',
     250 => 'Copo M',
-    350 => 'Copo G',
+    350 => 'Squeeze',
     500 => 'Garrafa P',
     750 => 'Garrafa M',
     _ => '',
