@@ -1,0 +1,24 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img">
+  <title>HidroBalance</title>
+  <desc>Logo HidroBalance — cruz da São Camilo com onda de hidratação</desc>
+
+  <defs>
+    <clipPath id="clip-icon">
+      <rect x="0" y="0" width="1024" height="1024" rx="232"/>
+    </clipPath>
+  </defs>
+
+  <!-- Fundo -->
+  <rect x="0" y="0" width="1024" height="1024" rx="232" fill="#C41230"/>
+
+  <!-- Cruz: centro em (512, 512), braço H 576×184, braço V 184×576 -->
+  <rect x="224" y="420" width="576" height="184" rx="28" fill="white" clip-path="url(#clip-icon)"/>
+  <rect x="420" y="224" width="184" height="576" rx="28" fill="white" clip-path="url(#clip-icon)"/>
+
+  <!-- Onda — camada 1 -->
+  <path d="M0 820 Q128 748 256 784 Q384 820 512 768 Q640 716 768 768 Q896 820 1024 768 L1024 1024 L0 1024Z"
+        fill="white" opacity="0.20" clip-path="url(#clip-icon)"/>
+  <!-- Onda — camada 2 -->
+  <path d="M0 900 Q160 848 320 880 Q480 912 640 856 Q800 800 1024 856 L1024 1024 L0 1024Z"
+        fill="white" opacity="0.16" clip-path="url(#clip-icon)"/>
+</svg>
