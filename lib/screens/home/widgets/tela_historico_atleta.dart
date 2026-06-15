@@ -129,6 +129,7 @@ class _CardSessaoProfissional extends StatelessWidget {
                     atletaUid: atletaUid,
                     sessaoId: sessao.id!,
                     resultado: resultado,
+                    sessao: sessao,
                   ),
                 ),
               ),

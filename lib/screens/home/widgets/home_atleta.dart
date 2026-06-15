@@ -288,6 +288,7 @@ class _CardSessao extends StatelessWidget {
                     atletaUid: sessao.atletaUid,
                     sessaoId: sessao.id!,
                     resultado: resultado,
+                    sessao: sessao,
                   ),
                 ),
               ),

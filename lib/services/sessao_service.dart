@@ -50,7 +50,7 @@ class SessaoService {
   // pós-sessão e cálculo:
 
   // salva os dados pós-sessão, executa o motor de cálculo e persiste o resultado
-  Future<ResultadoSessao> finalizarSessao(
+  Future<Sessao> finalizarSessao(
     String atletaUid,
     String sessaoId,
     DadosPosSessao dadosPos,
@@ -79,7 +79,7 @@ class SessaoService {
 
     await _sessoesRef(atletaUid).doc(sessaoId).set(sessaoFinal.toMap());
 
-    return resultado;
+    return sessaoFinal;
   }
 
   // cancela sessão em andamento
