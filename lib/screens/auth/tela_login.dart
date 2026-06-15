@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'tela_cadastro.dart';
 import 'tela_esqueci_senha.dart';
 import '../home/tela_home.dart';
@@ -73,18 +74,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   Center(
                     child: Column(
                       children: [
-                        Container(
+                        SvgPicture.asset(
+                          'assets/images/hidrobalance_logo.svg',
                           width: 72,
                           height: 72,
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryColor,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Icon(
-                            Icons.water_drop,
-                            color: Colors.white,
-                            size: 40,
-                          ),
                         ),
                         const SizedBox(height: 16),
                         const Text(

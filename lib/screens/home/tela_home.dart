@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../services/usuario_service.dart';
 import '../../models/usuario.dart';
 import '../../theme/tema_app.dart';
@@ -18,9 +19,9 @@ class TelaHome extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            body: Center(child: CircularProgressIndicator(
-              color: AppTheme.primaryColor,
-            )),
+            body: Center(
+              child: CircularProgressIndicator(color: AppTheme.primaryColor),
+            ),
           );
         }
 
@@ -31,8 +32,11 @@ class TelaHome extends StatelessWidget {
           );
         }
 
-        final ehProfissional = ['nutricionista', 'treinador', 'medico']
-            .contains(usuario.perfil);
+        final ehProfissional = [
+          'nutricionista',
+          'treinador',
+          'medico',
+        ].contains(usuario.perfil);
 
         return Scaffold(
           backgroundColor: Colors.grey[50],
@@ -41,7 +45,11 @@ class TelaHome extends StatelessWidget {
             foregroundColor: Colors.white,
             title: Row(
               children: [
-                const Icon(Icons.water_drop, size: 20),
+                SvgPicture.asset(
+                  'assets/images/hidrobalance_logo.svg',
+                  width: 28,
+                  height: 28,
+                ),
                 const SizedBox(width: 8),
                 const Text(
                   'HidroBalance',
@@ -82,7 +90,9 @@ class TelaHome extends StatelessWidget {
               await FirebaseAuth.instance.signOut();
               if (context.mounted) {
                 Navigator.pushNamedAndRemoveUntil(
-                  context, '/', (route) => false,
+                  context,
+                  '/',
+                  (route) => false,
                 );
               }
             },
