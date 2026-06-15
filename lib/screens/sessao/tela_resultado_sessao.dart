@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import '../../models/sessao.dart';
+import '../../services/relatorio_service.dart';
 import 'tela_recomendacoes.dart';
 
 class TelaResultadoSessao extends StatelessWidget {
   final String atletaUid;
   final String sessaoId;
   final ResultadoSessao resultado;
+  final Sessao sessao;
 
   const TelaResultadoSessao({
     super.key,
     required this.atletaUid,
     required this.sessaoId,
     required this.resultado,
+    required this.sessao,
   });
 
   @override
@@ -22,8 +25,10 @@ class TelaResultadoSessao extends StatelessWidget {
         backgroundColor: const Color(0xFFC41230),
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
-        title: const Text('Resultado da sessão',
-            style: TextStyle(fontWeight: FontWeight.w600)),
+        title: const Text(
+          'Resultado da sessão',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
         elevation: 0,
       ),
       body: Column(
@@ -114,10 +119,10 @@ class TelaResultadoSessao extends StatelessWidget {
     final corVariacao = variacao <= -3.0
         ? const Color(0xFFD32F2F)
         : variacao <= -2.0
-            ? const Color(0xFFFF7043)
-            : variacao >= 2.0
-                ? const Color(0xFF1565C0)
-                : const Color(0xFF2E7D32);
+        ? const Color(0xFFFF7043)
+        : variacao >= 2.0
+        ? const Color(0xFF1565C0)
+        : const Color(0xFF2E7D32);
 
     return Row(
       children: [
@@ -125,8 +130,7 @@ class TelaResultadoSessao extends StatelessWidget {
           child: _buildCardMetrica(
             icone: Icons.monitor_weight_outlined,
             label: 'Perda ajustada',
-            valor:
-                '${resultado.perdaMassaAjustadaKg.toStringAsFixed(2)} kg',
+            valor: '${resultado.perdaMassaAjustadaKg.toStringAsFixed(2)} kg',
             cor: const Color(0xFFC41230),
           ),
         ),
@@ -135,8 +139,7 @@ class TelaResultadoSessao extends StatelessWidget {
           child: _buildCardMetrica(
             icone: Icons.trending_down,
             label: 'Variação de massa',
-            valor:
-                '${variacao >= 0 ? '+' : ''}${variacao.toStringAsFixed(1)}%',
+            valor: '${variacao >= 0 ? '+' : ''}${variacao.toStringAsFixed(1)}%',
             cor: corVariacao,
           ),
         ),
@@ -190,10 +193,10 @@ class TelaResultadoSessao extends StatelessWidget {
   Widget _buildCardBalanco() {
     final balanco = resultado.balanceHidricoMl;
     final positivo = balanco >= 0;
-    final cor =
-        positivo ? const Color(0xFF2E7D32) : const Color(0xFFD32F2F);
-    final icone =
-        positivo ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded;
+    final cor = positivo ? const Color(0xFF2E7D32) : const Color(0xFFD32F2F);
+    final icone = positivo
+        ? Icons.arrow_upward_rounded
+        : Icons.arrow_downward_rounded;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -226,17 +229,17 @@ class TelaResultadoSessao extends StatelessWidget {
                 const Text(
                   'Balanço hídrico da sessão',
                   style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   positivo
                       ? 'Ingestão superou a perda estimada'
                       : 'Déficit hídrico na sessão',
-                  style: const TextStyle(
-                      fontSize: 11, color: Colors.black45),
+                  style: const TextStyle(fontSize: 11, color: Colors.black45),
                 ),
               ],
             ),
@@ -268,12 +271,13 @@ class TelaResultadoSessao extends StatelessWidget {
           style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 10),
-        ...alertasOrdenados.map((alerta) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: _buildItemAlerta(alerta),
-            )),
-        if (resultado.encaminhamentoRecomendado)
-          _buildBannerEncaminhamento(),
+        ...alertasOrdenados.map(
+          (alerta) => Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: _buildItemAlerta(alerta),
+          ),
+        ),
+        if (resultado.encaminhamentoRecomendado) _buildBannerEncaminhamento(),
       ],
     );
   }
@@ -298,8 +302,7 @@ class TelaResultadoSessao extends StatelessWidget {
               Icon(icone, color: cor, size: 16),
               const SizedBox(width: 6),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: cor.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(10),
@@ -319,16 +322,16 @@ class TelaResultadoSessao extends StatelessWidget {
           Text(
             alerta.mensagem,
             style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87),
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
+            ),
           ),
           if (alerta.orientacao != null) ...[
             const SizedBox(height: 6),
             Text(
               alerta.orientacao!,
-              style:
-                  const TextStyle(fontSize: 12, color: Colors.black54),
+              style: const TextStyle(fontSize: 12, color: Colors.black54),
             ),
           ],
         ],
@@ -344,12 +347,17 @@ class TelaResultadoSessao extends StatelessWidget {
         color: const Color(0xFFD32F2F).withOpacity(0.08),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-            color: const Color(0xFFD32F2F).withOpacity(0.4), width: 1.5),
+          color: const Color(0xFFD32F2F).withOpacity(0.4),
+          width: 1.5,
+        ),
       ),
       child: Row(
         children: [
-          const Icon(Icons.local_hospital_outlined,
-              color: Color(0xFFD32F2F), size: 22),
+          const Icon(
+            Icons.local_hospital_outlined,
+            color: Color(0xFFD32F2F),
+            size: 22,
+          ),
           const SizedBox(width: 12),
           const Expanded(
             child: Text(
@@ -396,8 +404,11 @@ class TelaResultadoSessao extends StatelessWidget {
                 color: Colors.white.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.water_drop_outlined,
-                  color: Colors.white, size: 22),
+              child: const Icon(
+                Icons.water_drop_outlined,
+                color: Colors.white,
+                size: 22,
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -417,8 +428,7 @@ class TelaResultadoSessao extends StatelessWidget {
                     '${resultado.ingestaoAlvoMlH.toStringAsFixed(0)} mL/h · '
                     'a cada ${resultado.intervaloIngestaoMin} min · '
                     '${resultado.volumePorDoseMl.toStringAsFixed(0)} mL/dose',
-                    style: const TextStyle(
-                        color: Colors.white70, fontSize: 12),
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                 ],
               ),
@@ -434,7 +444,11 @@ class TelaResultadoSessao extends StatelessWidget {
   Widget _buildBotoesAcao(BuildContext context) {
     return Container(
       padding: EdgeInsets.fromLTRB(
-          16, 12, 16, MediaQuery.of(context).padding.bottom + 12),
+        16,
+        12,
+        16,
+        MediaQuery.of(context).padding.bottom + 12,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -445,48 +459,111 @@ class TelaResultadoSessao extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: () =>
-                  Navigator.of(context).popUntil((r) => r.isFirst),
-              icon: const Icon(Icons.home_outlined),
-              label: const Text('Início'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                side: const BorderSide(color: Color(0xFFC41230)),
-                foregroundColor: const Color(0xFFC41230),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            flex: 2,
-            child: FilledButton.icon(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) =>
-                      TelaRecomendacoes(resultado: resultado),
+          // botão de exportar (novo)
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => _exportar(context, pdf: true),
+                  icon: const Icon(Icons.picture_as_pdf_outlined),
+                  label: const Text('PDF'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    side: const BorderSide(color: Color(0xFFC41230)),
+                    foregroundColor: const Color(0xFFC41230),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
                 ),
               ),
-              icon: const Icon(Icons.recommend_outlined),
-              label: const Text('Ver recomendações',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFFC41230),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => _exportar(context, pdf: false),
+                  icon: const Icon(Icons.table_chart_outlined),
+                  label: const Text('CSV'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    side: const BorderSide(color: Color(0xFFC41230)),
+                    foregroundColor: const Color(0xFFC41230),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
               ),
-            ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // botões originais
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () =>
+                      Navigator.of(context).popUntil((r) => r.isFirst),
+                  icon: const Icon(Icons.home_outlined),
+                  label: const Text('Início'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: const BorderSide(color: Color(0xFFC41230)),
+                    foregroundColor: const Color(0xFFC41230),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 2,
+                child: FilledButton.icon(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => TelaRecomendacoes(resultado: resultado),
+                    ),
+                  ),
+                  icon: const Icon(Icons.recommend_outlined),
+                  label: const Text(
+                    'Ver recomendações',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFFC41230),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _exportar(BuildContext context, {required bool pdf}) async {
+    if (sessao.resultado == null) return;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      if (pdf) {
+        await RelatorioService.exportarPdf(sessao);
+      } else {
+        await RelatorioService.exportarCsv(
+          sessao,
+          context: context,
+        );
+      }
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('Erro ao exportar: $e')));
+    }
   }
 
   // helpers nível de risco
@@ -498,30 +575,30 @@ class TelaResultadoSessao extends StatelessWidget {
   }
 
   Color _corNivel(NivelRisco nivel) => switch (nivel) {
-        NivelRisco.normal => const Color(0xFF2E7D32),
-        NivelRisco.atencao => const Color(0xFFF9A825),
-        NivelRisco.alerta => const Color(0xFFE65100),
-        NivelRisco.critico => const Color(0xFFD32F2F),
-      };
+    NivelRisco.normal => const Color(0xFF2E7D32),
+    NivelRisco.atencao => const Color(0xFFF9A825),
+    NivelRisco.alerta => const Color(0xFFE65100),
+    NivelRisco.critico => const Color(0xFFD32F2F),
+  };
 
   IconData _iconeNivel(NivelRisco nivel) => switch (nivel) {
-        NivelRisco.normal => Icons.check_circle_outline,
-        NivelRisco.atencao => Icons.info_outline,
-        NivelRisco.alerta => Icons.warning_amber_rounded,
-        NivelRisco.critico => Icons.error_outline,
-      };
+    NivelRisco.normal => Icons.check_circle_outline,
+    NivelRisco.atencao => Icons.info_outline,
+    NivelRisco.alerta => Icons.warning_amber_rounded,
+    NivelRisco.critico => Icons.error_outline,
+  };
 
   String _labelNivel(NivelRisco nivel) => switch (nivel) {
-        NivelRisco.normal => 'Normal',
-        NivelRisco.atencao => 'Atenção',
-        NivelRisco.alerta => 'Alerta',
-        NivelRisco.critico => 'Crítico',
-      };
+    NivelRisco.normal => 'Normal',
+    NivelRisco.atencao => 'Atenção',
+    NivelRisco.alerta => 'Alerta',
+    NivelRisco.critico => 'Crítico',
+  };
 
   String _labelNivelGeral(NivelRisco nivel) => switch (nivel) {
-        NivelRisco.normal => 'Sessão dentro dos parâmetros normais',
-        NivelRisco.atencao => 'Pontos de atenção identificados',
-        NivelRisco.alerta => 'Alertas clínicos — avaliação recomendada',
-        NivelRisco.critico => 'Situação crítica — atendimento imediato',
-      };
+    NivelRisco.normal => 'Sessão dentro dos parâmetros normais',
+    NivelRisco.atencao => 'Pontos de atenção identificados',
+    NivelRisco.alerta => 'Alertas clínicos — avaliação recomendada',
+    NivelRisco.critico => 'Situação crítica — atendimento imediato',
+  };
 }
