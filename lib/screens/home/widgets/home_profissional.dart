@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'tela_historico_atleta.dart';
 import '../../../models/usuario.dart';
 import '../../../models/vinculo.dart';
 import '../../../services/vinculo_service.dart';
@@ -425,155 +426,170 @@ class _CardAtleta extends StatelessWidget {
     final sessao = resumo.ultimaSessao;
     final temAlerta = resumo.temAlerta;
 
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: temAlerta
-              ? const Color(0xFFD32F2F).withOpacity(0.4)
-              : Colors.grey.shade200,
-          width: temAlerta ? 1.5 : 1,
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => TelaHistoricoAtleta(vinculo: vinculo),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: temAlerta
-                      ? const Color(0xFFD32F2F).withOpacity(0.1)
-                      : AppTheme.primaryColor.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: temAlerta
+                ? const Color(0xFFD32F2F).withOpacity(0.4)
+                : Colors.grey.shade200,
+            width: temAlerta ? 1.5 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: temAlerta
+                        ? const Color(0xFFD32F2F).withOpacity(0.1)
+                        : AppTheme.primaryColor.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    temAlerta
+                        ? Icons.warning_amber_rounded
+                        : Icons.person_outlined,
+                    color: temAlerta
+                        ? const Color(0xFFD32F2F)
+                        : AppTheme.primaryColor,
+                    size: 18,
+                  ),
                 ),
-                child: Icon(
-                  temAlerta
-                      ? Icons.warning_amber_rounded
-                      : Icons.person_outlined,
-                  color: temAlerta
-                      ? const Color(0xFFD32F2F)
-                      : AppTheme.primaryColor,
-                  size: 18,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        vinculo.nomeAtleta,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        vinculo.codigoAtleta,
+                        style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      vinculo.nomeAtleta,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                PopupMenuButton<String>(
+                  icon: Icon(
+                    Icons.more_vert,
+                    color: Colors.grey[400],
+                    size: 20,
+                  ),
+                  onSelected: (v) {
+                    if (v == 'encerrar') onEncerrar();
+                  },
+                  itemBuilder: (_) => [
+                    const PopupMenuItem(
+                      value: 'encerrar',
+                      child: Row(
+                        children: [
+                          Icon(Icons.link_off, size: 18, color: Colors.red),
+                          SizedBox(width: 8),
+                          Text(
+                            'Encerrar vínculo',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ],
                       ),
                     ),
-                    Text(
-                      vinculo.codigoAtleta,
-                      style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                  ],
+                ),
+              ],
+            ),
+            if (temAlerta) ...[
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD32F2F).withOpacity(0.07),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      color: Color(0xFFD32F2F),
+                      size: 14,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'Alerta na última sessão — avaliação recomendada',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFFD32F2F),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
-              PopupMenuButton<String>(
-                icon: Icon(Icons.more_vert, color: Colors.grey[400], size: 20),
-                onSelected: (v) {
-                  if (v == 'encerrar') onEncerrar();
-                },
-                itemBuilder: (_) => [
-                  const PopupMenuItem(
-                    value: 'encerrar',
-                    child: Row(
-                      children: [
-                        Icon(Icons.link_off, size: 18, color: Colors.red),
-                        SizedBox(width: 8),
-                        Text(
-                          'Encerrar vínculo',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      ],
-                    ),
+            ],
+            if (sessao != null) ...[
+              const SizedBox(height: 10),
+              const Divider(height: 1),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  _buildMetricaMini(
+                    icone: Icons.water_drop_outlined,
+                    valor:
+                        '${sessao.resultado?.taxaSudoreseLh.toStringAsFixed(2) ?? '--'} L/h',
+                    label: 'sudorese',
+                  ),
+                  const SizedBox(width: 16),
+                  _buildMetricaMini(
+                    icone: Icons.monitor_weight_outlined,
+                    valor:
+                        '${sessao.resultado?.variacaoMassaPercent.toStringAsFixed(1) ?? '--'}%',
+                    label: 'variação',
+                  ),
+                  const SizedBox(width: 16),
+                  _buildMetricaMini(
+                    icone: Icons.calendar_today_outlined,
+                    valor: _dataFormatada(sessao.dataHoraInicio),
+                    label: 'última sessão',
                   ),
                 ],
+              ),
+            ] else ...[
+              const SizedBox(height: 8),
+              Text(
+                'Nenhuma sessão registrada ainda',
+                style: TextStyle(fontSize: 11, color: Colors.grey[400]),
               ),
             ],
-          ),
-          if (temAlerta) ...[
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: const Color(0xFFD32F2F).withOpacity(0.07),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    color: Color(0xFFD32F2F),
-                    size: 14,
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      'Alerta na última sessão — avaliação recomendada',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFFD32F2F),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ],
-          if (sessao != null) ...[
-            const SizedBox(height: 10),
-            const Divider(height: 1),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                _buildMetricaMini(
-                  icone: Icons.water_drop_outlined,
-                  valor:
-                      '${sessao.resultado?.taxaSudoreseLh.toStringAsFixed(2) ?? '--'} L/h',
-                  label: 'sudorese',
-                ),
-                const SizedBox(width: 16),
-                _buildMetricaMini(
-                  icone: Icons.monitor_weight_outlined,
-                  valor:
-                      '${sessao.resultado?.variacaoMassaPercent.toStringAsFixed(1) ?? '--'}%',
-                  label: 'variação',
-                ),
-                const SizedBox(width: 16),
-                _buildMetricaMini(
-                  icone: Icons.calendar_today_outlined,
-                  valor: _dataFormatada(sessao.dataHoraInicio),
-                  label: 'última sessão',
-                ),
-              ],
-            ),
-          ] else ...[
-            const SizedBox(height: 8),
-            Text(
-              'Nenhuma sessão registrada ainda',
-              style: TextStyle(fontSize: 11, color: Colors.grey[400]),
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }
