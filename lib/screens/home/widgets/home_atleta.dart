@@ -17,19 +17,6 @@ class HomeAtleta extends StatefulWidget {
 
 class _HomeAtletaState extends State<HomeAtleta> {
   final _sessaoService = SessaoService();
-  late Future<EstatisticasResumidas> _estatisticasFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _carregarEstatisticas();
-  }
-
-  void _carregarEstatisticas() {
-    _estatisticasFuture = _sessaoService.calcularEstatisticasResumidas(
-      widget.usuario.uid,
-    );
-  }
 
   Future<void> _iniciarNovasSessao() async {
     await Navigator.push(
@@ -41,9 +28,6 @@ class _HomeAtletaState extends State<HomeAtleta> {
         ),
       ),
     );
-    if (mounted) {
-      setState(() => _carregarEstatisticas());
-    }
   }
 
   @override
@@ -64,14 +48,15 @@ class _HomeAtletaState extends State<HomeAtleta> {
           const SizedBox(height: 24),
 
           // cards de métricas
-          FutureBuilder<EstatisticasResumidas>(
-            future: _estatisticasFuture,
+          StreamBuilder<EstatisticasResumidas>(
+            stream: _sessaoService.streamEstatisticasResumidas(
+              widget.usuario.uid,
+            ),
             builder: (context, snap) {
               if (snap.hasError) {
-                debugPrint('calcularEstatisticasResumidas erro: ${snap.error}');
+                debugPrint('streamEstatisticas erro: ${snap.error}');
               }
-              final stats =
-                  snap.data ??
+              final stats = snap.data ??
                   const EstatisticasResumidas(
                     totalSessoes: 0,
                     mediaSudoreseLh: 0.0,
@@ -79,14 +64,15 @@ class _HomeAtletaState extends State<HomeAtleta> {
                   );
               return _SessaoResumo(estatisticas: stats);
             },
-          ), // FutureBuilder
+          ),
           const SizedBox(height: 24),
 
           Text(
             'Últimas sessões',
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
 
@@ -139,8 +125,8 @@ class _CardSaudacao extends StatelessWidget {
     final saudacao = hora < 12
         ? 'Bom dia'
         : hora < 18
-        ? 'Boa tarde'
-        : 'Boa noite';
+            ? 'Boa tarde'
+            : 'Boa noite';
 
     return Container(
       width: double.infinity,
@@ -296,15 +282,15 @@ class _CardSessao extends StatelessWidget {
       onTap: resultado == null
           ? null
           : () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => TelaResultadoSessao(
-                  atletaUid: sessao.atletaUid,
-                  sessaoId: sessao.id!,
-                  resultado: resultado,
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TelaResultadoSessao(
+                    atletaUid: sessao.atletaUid,
+                    sessaoId: sessao.id!,
+                    resultado: resultado,
+                  ),
                 ),
               ),
-            ),
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
@@ -374,15 +360,15 @@ class _CardSessao extends StatelessWidget {
   }
 
   String _labelModalidade(ModalidadeEsportiva m) => switch (m) {
-    ModalidadeEsportiva.corrida => 'Corrida',
-    ModalidadeEsportiva.ciclismo => 'Ciclismo',
-    ModalidadeEsportiva.natacao => 'Natação',
-    ModalidadeEsportiva.futebol => 'Futebol',
-    ModalidadeEsportiva.basquete => 'Basquete',
-    ModalidadeEsportiva.volei => 'Vôlei',
-    ModalidadeEsportiva.tenis => 'Tênis',
-    ModalidadeEsportiva.musculacao => 'Musculação',
-    ModalidadeEsportiva.crossfit => 'CrossFit',
-    ModalidadeEsportiva.outro => 'Outro',
-  };
+        ModalidadeEsportiva.corrida => 'Corrida',
+        ModalidadeEsportiva.ciclismo => 'Ciclismo',
+        ModalidadeEsportiva.natacao => 'Natação',
+        ModalidadeEsportiva.futebol => 'Futebol',
+        ModalidadeEsportiva.basquete => 'Basquete',
+        ModalidadeEsportiva.volei => 'Vôlei',
+        ModalidadeEsportiva.tenis => 'Tênis',
+        ModalidadeEsportiva.musculacao => 'Musculação',
+        ModalidadeEsportiva.crossfit => 'CrossFit',
+        ModalidadeEsportiva.outro => 'Outro',
+      };
 }

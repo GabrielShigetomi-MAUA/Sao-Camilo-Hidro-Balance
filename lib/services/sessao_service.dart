@@ -6,7 +6,7 @@ class SessaoService {
   final FirebaseFirestore _db;
 
   SessaoService({FirebaseFirestore? firestore})
-      : _db = firestore ?? FirebaseFirestore.instance;
+    : _db = firestore ?? FirebaseFirestore.instance;
 
   // referências
   CollectionReference<Map<String, dynamic>> _sessoesRef(String atletaUid) =>
@@ -57,7 +57,9 @@ class SessaoService {
   ) async {
     final sessaoAtual = await buscarSessao(atletaUid, sessaoId);
     if (sessaoAtual == null) {
-      throw StateError('Sessão $sessaoId não encontrada para o atleta $atletaUid.');
+      throw StateError(
+        'Sessão $sessaoId não encontrada para o atleta $atletaUid.',
+      );
     }
 
     final sessaoCompleta = sessaoAtual.copyWith(
@@ -68,7 +70,9 @@ class SessaoService {
 
     final resultado = CalculoSudoreseService.calcular(sessaoCompleta);
     if (resultado == null) {
-      throw StateError('Não foi possível calcular o resultado — dados insuficientes.');
+      throw StateError(
+        'Não foi possível calcular o resultado — dados insuficientes.',
+      );
     }
 
     final sessaoFinal = sessaoCompleta.copyWith(resultado: resultado);
@@ -100,9 +104,11 @@ class SessaoService {
     return _sessoesRef(atletaUid)
         .doc(sessaoId)
         .snapshots()
-        .map((snap) => snap.exists && snap.data() != null
-            ? Sessao.fromMap(snap.data()!, snap.id)
-            : null);
+        .map(
+          (snap) => snap.exists && snap.data() != null
+              ? Sessao.fromMap(snap.data()!, snap.id)
+              : null,
+        );
   }
 
   // lista sessões concluídas do atleta
@@ -112,9 +118,7 @@ class SessaoService {
         .orderBy('dataHoraInicio', descending: true)
         .get();
 
-    return query.docs
-        .map((doc) => Sessao.fromMap(doc.data(), doc.id))
-        .toList();
+    return query.docs.map((doc) => Sessao.fromMap(doc.data(), doc.id)).toList();
   }
 
   // stream da lista de sessões concluídas (exibir ultimas sessões em tempo real)
@@ -127,17 +131,18 @@ class SessaoService {
         .orderBy('dataHoraInicio', descending: true)
         .limit(limite)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((doc) => Sessao.fromMap(doc.data(), doc.id))
-            .toList());
+        .map(
+          (snap) => snap.docs
+              .map((doc) => Sessao.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
   }
 
   // busca a sessão em andamento do atleta
   Future<Sessao?> buscarSessaoEmAndamento(String atletaUid) async {
-    final query = await _sessoesRef(atletaUid)
-        .where('status', isEqualTo: StatusSessao.emAndamento.name)
-        .limit(1)
-        .get();
+    final query = await _sessoesRef(
+      atletaUid,
+    ).where('status', isEqualTo: StatusSessao.emAndamento.name).limit(1).get();
 
     if (query.docs.isEmpty) return null;
     final doc = query.docs.first;
@@ -153,7 +158,6 @@ class SessaoService {
   }) async {
     final sessoes = await _sessoesRef(atletaUid)
         .where('status', isEqualTo: StatusSessao.concluida.name)
-        .where('resultado', isNull: false)
         .orderBy('dataHoraInicio', descending: true)
         .limit(quantidade)
         .get();
@@ -171,19 +175,76 @@ class SessaoService {
         .whereType<ResultadoSessao>()
         .toList();
 
+    if (resultados.isEmpty) {
+      return EstatisticasResumidas(
+        totalSessoes: sessoes.docs.length,
+        mediaSudoreseLh: 0.0,
+        mediaVariacaoMassaPercent: 0.0,
+      );
+    }
+
     final mediaSudorese =
         resultados.map((r) => r.taxaSudoreseLh).reduce((a, b) => a + b) /
-            resultados.length;
+        resultados.length;
 
     final mediaVariacao =
         resultados.map((r) => r.variacaoMassaPercent).reduce((a, b) => a + b) /
-            resultados.length;
+        resultados.length;
 
     return EstatisticasResumidas(
       totalSessoes: sessoes.docs.length,
       mediaSudoreseLh: mediaSudorese,
       mediaVariacaoMassaPercent: mediaVariacao,
     );
+  }
+
+  Stream<EstatisticasResumidas> streamEstatisticasResumidas(
+    String atletaUid, {
+    int quantidade = 10,
+  }) {
+    return _sessoesRef(atletaUid)
+        .where('status', isEqualTo: StatusSessao.concluida.name)
+        .orderBy('dataHoraInicio', descending: true)
+        .limit(quantidade)
+        .snapshots()
+        .map((snap) {
+          if (snap.docs.isEmpty) {
+            return const EstatisticasResumidas(
+              totalSessoes: 0,
+              mediaSudoreseLh: 0.0,
+              mediaVariacaoMassaPercent: 0.0,
+            );
+          }
+
+          final resultados = snap.docs
+              .map((doc) => Sessao.fromMap(doc.data(), doc.id).resultado)
+              .whereType<ResultadoSessao>()
+              .toList();
+
+          if (resultados.isEmpty) {
+            return EstatisticasResumidas(
+              totalSessoes: snap.docs.length,
+              mediaSudoreseLh: 0.0,
+              mediaVariacaoMassaPercent: 0.0,
+            );
+          }
+
+          final mediaSudorese =
+              resultados.map((r) => r.taxaSudoreseLh).reduce((a, b) => a + b) /
+              resultados.length;
+
+          final mediaVariacao =
+              resultados
+                  .map((r) => r.variacaoMassaPercent)
+                  .reduce((a, b) => a + b) /
+              resultados.length;
+
+          return EstatisticasResumidas(
+            totalSessoes: snap.docs.length,
+            mediaSudoreseLh: mediaSudorese,
+            mediaVariacaoMassaPercent: mediaVariacao,
+          );
+        });
   }
 
   // remove sessão permanentemente
