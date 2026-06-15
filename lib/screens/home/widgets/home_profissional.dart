@@ -240,12 +240,6 @@ class _HomeProfissionalState extends State<HomeProfissional> {
         StreamBuilder<List<Vinculo>>(
           stream: _vinculoService.streamAtletasVinculados(widget.usuario.uid),
           builder: (context, snapshot) {
-            debugPrint('=== STREAM VINCULOS ===');
-            debugPrint('connectionState: ${snapshot.connectionState}');
-            debugPrint('hasError: ${snapshot.hasError}');
-            debugPrint('error: ${snapshot.error}');
-            debugPrint('data: ${snapshot.data}');
-            debugPrint('data length: ${snapshot.data?.length}');
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
                 child: Padding(
