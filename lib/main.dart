@@ -23,7 +23,8 @@ class HidroBalanceApp extends StatelessWidget {
       title: 'HidroBalance',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
-      home: const LoginScreen(),
+      initialRoute: '/',
+      routes: {'/': (_) => const LoginScreen()},
     );
   }
 }
