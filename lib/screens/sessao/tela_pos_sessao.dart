@@ -73,7 +73,7 @@ class _TelaPosSessaoState extends State<TelaPosSessao> {
         toleranciaPlanoHidrico: _tolerancia,
       );
 
-      final resultado = await _sessaoService.finalizarSessao(
+      final sessaoFinalizada = await _sessaoService.finalizarSessao(
         widget.atletaUid,
         widget.sessaoId,
         dadosPos,
@@ -87,7 +87,8 @@ class _TelaPosSessaoState extends State<TelaPosSessao> {
           builder: (_) => TelaResultadoSessao(
             atletaUid: widget.atletaUid,
             sessaoId: widget.sessaoId,
-            resultado: resultado,
+            resultado: sessaoFinalizada.resultado!,
+            sessao: sessaoFinalizada,
           ),
         ),
       );
