@@ -150,7 +150,7 @@ class SessaoService {
   }
 
   // estatísticas para a home:
-
+  
   // calcula média de taxa de sudorese e variação de massa das últimas sessoes
   Future<EstatisticasResumidas> calcularEstatisticasResumidas(
     String atletaUid, {
@@ -247,6 +247,87 @@ class SessaoService {
         });
   }
 
+  // agrupamento por contexto:
+
+  Future<List<GrupoContexto>> agruparSessoesPorContexto(
+    String atletaUid,
+  ) async {
+    final sessoes = await listarSessoesConcluidas(atletaUid);
+    return _agrupar(sessoes);
+  }
+
+  // stream agrupamento
+  Stream<List<GrupoContexto>> streamGruposContexto(String atletaUid) {
+    return _sessoesRef(atletaUid)
+        .where('status', isEqualTo: StatusSessao.concluida.name)
+        .orderBy('dataHoraInicio', descending: true)
+        .snapshots()
+        .map((snap) {
+          final sessoes = snap.docs
+              .map((doc) => Sessao.fromMap(doc.data(), doc.id))
+              .toList();
+          return _agrupar(sessoes);
+        });
+  }
+
+  List<GrupoContexto> _agrupar(List<Sessao> sessoes) {
+    // cada chave identifica uma combinação de contexto
+    final Map<String, List<Sessao>> buckets = {};
+
+    for (final s in sessoes) {
+      final faixa = FaixaTemperatura.de(s.condicoesAmbientais.temperaturaC);
+      final chave = '${s.modalidade.name}|${faixa.name}|${s.intensidade.name}';
+      buckets.putIfAbsent(chave, () => []).add(s);
+    }
+
+    final grupos = buckets.entries.map((entry) {
+      // reconstrói os três critérios a partir da chave
+      final partes = entry.key.split('|');
+      final modalidade = ModalidadeEsportiva.values.byName(partes[0]);
+      final faixa = FaixaTemperatura.values.byName(partes[1]);
+      final intensidade = IntensidadeTreino.values.byName(partes[2]);
+      final lista = entry.value;
+
+      // considera apenas sessões que têm resultado calculado
+      final resultados = lista
+          .map((s) => s.resultado)
+          .whereType<ResultadoSessao>()
+          .toList();
+
+      final mediaSudorese = resultados.isEmpty
+          ? 0.0
+          : resultados.map((r) => r.taxaSudoreseLh).reduce((a, b) => a + b) /
+                resultados.length;
+
+      final mediaVariacao = resultados.isEmpty
+          ? 0.0
+          : resultados
+                    .map((r) => r.variacaoMassaPercent)
+                    .reduce((a, b) => a + b) /
+                resultados.length;
+
+      // data da sessão mais recente do grupo
+      final maisRecente = lista
+          .map((s) => s.dataHoraInicio)
+          .reduce((a, b) => a.isAfter(b) ? a : b);
+
+      return GrupoContexto(
+        modalidade: modalidade,
+        faixaTemperatura: faixa,
+        intensidade: intensidade,
+        totalSessoes: lista.length,
+        mediaSudoreseLh: mediaSudorese,
+        mediaVariacaoMassaPercent: mediaVariacao,
+        ultimaSessao: maisRecente,
+        sessoes: lista,
+      );
+    }).toList();
+
+    // grupos com mais sessões aparecem primeiro
+    grupos.sort((a, b) => b.totalSessoes.compareTo(a.totalSessoes));
+    return grupos;
+  }
+
   // remove sessão permanentemente
   Future<void> excluirSessao(String atletaUid, String sessaoId) async {
     await _sessoesRef(atletaUid).doc(sessaoId).delete();
@@ -263,5 +344,48 @@ class EstatisticasResumidas {
     required this.totalSessoes,
     required this.mediaSudoreseLh,
     required this.mediaVariacaoMassaPercent,
+  });
+}
+
+// faixas de temperatura para agrupamento
+enum FaixaTemperatura {
+  fria, // < 15 °C
+  amena, // 15–25 °C
+  quente; // > 25 °C
+
+  // constrói a faixa a partir de um valor numérico
+  static FaixaTemperatura de(double tempC) {
+    if (tempC < 15) return FaixaTemperatura.fria;
+    if (tempC <= 25) return FaixaTemperatura.amena;
+    return FaixaTemperatura.quente;
+  }
+
+  String get label => switch (this) {
+    FaixaTemperatura.fria => 'Frio (<15 °C)',
+    FaixaTemperatura.amena => 'Ameno (15–25 °C)',
+    FaixaTemperatura.quente => 'Quente (>25 °C)',
+  };
+}
+
+// resultado de um grupo de sessões com contexto semelhante
+class GrupoContexto {
+  final ModalidadeEsportiva modalidade;
+  final FaixaTemperatura faixaTemperatura;
+  final IntensidadeTreino intensidade;
+  final int totalSessoes;
+  final double mediaSudoreseLh;
+  final double mediaVariacaoMassaPercent;
+  final DateTime ultimaSessao;
+  final List<Sessao> sessoes;
+
+  const GrupoContexto({
+    required this.modalidade,
+    required this.faixaTemperatura,
+    required this.intensidade,
+    required this.totalSessoes,
+    required this.mediaSudoreseLh,
+    required this.mediaVariacaoMassaPercent,
+    required this.ultimaSessao,
+    required this.sessoes,
   });
 }
